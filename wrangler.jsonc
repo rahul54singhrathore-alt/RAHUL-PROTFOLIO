@@ -1,0 +1,26 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "main": ".open-next/worker.js",
+  "name": "sourabhportoflia",
+  "compatibility_date": "2025-03-25",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "binding": "ASSETS",
+    "directory": ".open-next/assets"
+  },
+  "observability": {
+    "enabled": true
+  },
+  // Non-secret runtime vars. Committed so every deploy reapplies them
+  // (the dashboard otherwise wipes hand-added vars on each deploy).
+  // The Supabase anon key + URL are public by design (RLS gates access).
+  // Real secrets (service role key, GitHub PAT, Gemini key, admin emails)
+  // are set as ENCRYPTED secrets — those persist across deploys. See README/notes.
+  "vars": {
+    "NEXT_PUBLIC_SUPABASE_URL": "https://ppocqnivcrsiicnelqby.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwb2Nxbml2Y3JzaWljbmVscWJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MDE1MTAsImV4cCI6MjA5NzI3NzUxMH0.-wI8mF8D7wiFS7e6EfSKX9Ty6NCV1X69IwuGPfUzt9k",
+    "NEXT_PUBLIC_SITE_URL": "https://sourabhsin.com",
+    "NEXT_PUBLIC_FORMSPREE_ENDPOINT": "https://formspree.io/f/xwvjjnab",
+    "GITHUB_USERNAME": "SouSingh"
+  }
+}

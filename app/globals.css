@@ -1,0 +1,298 @@
+@import "tailwindcss";
+
+/* Class-based dark mode (toggled by ThemeToggle, persisted to localStorage). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #fbfbfa;
+  --foreground: #14141a;
+  --muted: #6b7280;
+  --border: #ececec;
+  --card: #ffffff;
+  --accent: #14141a;
+  /* Signature gradient — cohesive cool indigo→blue→cyan (analogous, not rainbow). */
+  --g1: #5b6ef5;
+  --g2: #3b82f6;
+  --g3: #1fb6d6;
+  --grad: linear-gradient(115deg, var(--g1), var(--g2) 52%, var(--g3));
+  --ring: rgba(91, 110, 245, 0.32);
+}
+
+.dark {
+  --background: #08080a;
+  --foreground: #ededed;
+  --muted: #8b8b93;
+  --border: #1c1c22;
+  --card: #101015;
+  --accent: #ededed;
+  --g1: #818cf8;
+  --g2: #60a5fa;
+  --g3: #3ad6ec;
+  --ring: rgba(129, 140, 248, 0.4);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-card: var(--card);
+  --color-accent: var(--accent);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-display: var(--font-display), Georgia, serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  /* NOTE: do NOT set overflow-x here — it makes <body> a scroll container
+     and breaks position: sticky on the left sidebar. Horizontal overflow is
+     prevented by min-w-0 guards and the fixed/clipped .aurora layer instead. */
+}
+
+::selection {
+  background: color-mix(in oklab, var(--g1) 30%, transparent);
+}
+
+/* ---- Signature accents ---------------------------------------------------- */
+.grad-text {
+  background: var(--grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.display { font-family: var(--font-display); font-weight: 400; }
+
+/* ---- Aurora background blobs ---------------------------------------------- */
+.aurora {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  pointer-events: none;
+}
+.aurora::before,
+.aurora::after {
+  content: "";
+  position: absolute;
+  width: 55vw;
+  height: 55vw;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.5;
+  background: radial-gradient(circle at 30% 30%, var(--g1), transparent 60%);
+  animation: drift 22s ease-in-out infinite alternate;
+}
+.dark .aurora::before, .dark .aurora::after { opacity: 0.28; }
+.aurora::before { top: -15vw; left: -10vw; }
+.aurora::after {
+  bottom: -20vw;
+  right: -12vw;
+  background: radial-gradient(circle at 70% 70%, var(--g3), transparent 60%);
+  animation-duration: 28s;
+  animation-direction: alternate-reverse;
+}
+/* Faint dotted grid overlay for texture. */
+.grid-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: radial-gradient(color-mix(in oklab, var(--foreground) 8%, transparent) 1px, transparent 1px);
+  background-size: 26px 26px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 35%, transparent 75%);
+}
+
+/* Film grain for tactile depth. */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.dark .grain { opacity: 0.05; }
+
+@keyframes drift {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(8vw, 6vh) scale(1.15); }
+}
+
+/* ---- Scroll reveal -------------------------------------------------------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.reveal.in { opacity: 1; transform: none; }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+.rise { animation: rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@keyframes cell-pop {
+  from { opacity: 0; transform: scale(0.4); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ---- Spotify equalizer ---------------------------------------------------- */
+.eq { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; }
+.eq i {
+  width: 2px;
+  background: var(--grad);
+  border-radius: 1px;
+  animation: eq 0.9s ease-in-out infinite;
+}
+.eq i:nth-child(1) { height: 40%; animation-delay: -0.2s; }
+.eq i:nth-child(2) { height: 90%; animation-delay: -0.5s; }
+.eq i:nth-child(3) { height: 60%; animation-delay: -0.1s; }
+.eq i:nth-child(4) { height: 100%; animation-delay: -0.4s; }
+@keyframes eq {
+  0%, 100% { transform: scaleY(0.35); }
+  50% { transform: scaleY(1); }
+}
+
+/* ---- Theme switch: circular reveal via View Transitions ------------------- */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) { z-index: 0; }
+::view-transition-new(root) {
+  z-index: 1;
+  animation: theme-reveal 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes theme-reveal {
+  from { clip-path: circle(0% at var(--tx, 50%) var(--ty, 50%)); }
+  to   { clip-path: circle(150% at var(--tx, 50%) var(--ty, 50%)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-new(root) { animation: none; }
+  .aurora::before, .aurora::after { animation: none; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .rise { animation: none; }
+  .eq i { animation: none; height: 60%; }
+  html { scroll-behavior: auto; }
+}
+
+/* Small uppercase section label. */
+.label {
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+/* Glass card with gradient-border glow + sheen sweep on hover. */
+.card-x {
+  position: relative;
+  border: 1px solid var(--border);
+  background: color-mix(in oklab, var(--card) 86%, transparent);
+  backdrop-filter: blur(8px);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.35s, box-shadow 0.35s;
+}
+.card-x::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--grad);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.35s;
+}
+.card-x::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(100deg, transparent, color-mix(in oklab, var(--foreground) 8%, transparent), transparent);
+  transform: skewX(-18deg);
+  transition: left 0.7s ease;
+}
+.card-x:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 40px -24px var(--ring);
+}
+.card-x:hover::before { opacity: 0.9; }
+.card-x:hover::after { left: 130%; }
+
+/* Animated underline for nav / inline links. */
+.link-u {
+  position: relative;
+}
+.link-u::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  height: 1.5px;
+  width: 0;
+  background: var(--grad);
+  transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.link-u:hover::after, .link-u[data-active="true"]::after { width: 100%; }
+
+/* Rendered markdown (blog posts). */
+.markdown {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--foreground);
+}
+.markdown > * + * { margin-top: 1.1em; }
+.markdown h1, .markdown h2, .markdown h3 { font-weight: 600; line-height: 1.3; margin-top: 1.8em; }
+.markdown h1 { font-size: 1.6rem; }
+.markdown h2 { font-size: 1.3rem; }
+.markdown h3 { font-size: 1.1rem; }
+.markdown a { text-decoration: underline; text-underline-offset: 2px; }
+.markdown ul, .markdown ol { padding-left: 1.4em; }
+.markdown ul { list-style: disc; }
+.markdown ol { list-style: decimal; }
+.markdown li + li { margin-top: 0.35em; }
+.markdown blockquote {
+  border-left: 3px solid var(--border);
+  padding-left: 1em;
+  color: var(--muted);
+  font-style: italic;
+}
+.markdown code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  background: color-mix(in oklab, var(--foreground) 7%, transparent);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+}
+.markdown pre {
+  background: color-mix(in oklab, var(--foreground) 5%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1em;
+  overflow-x: auto;
+}
+.markdown pre code { background: none; padding: 0; font-size: 0.85em; }
+.markdown img { border-radius: 10px; }
+.markdown hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
+.markdown table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+.markdown th, .markdown td { border: 1px solid var(--border); padding: 0.5em 0.75em; text-align: left; }

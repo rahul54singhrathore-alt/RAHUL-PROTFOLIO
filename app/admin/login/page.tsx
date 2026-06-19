@@ -63,6 +63,7 @@ function VerifyForm({ email, onDone }: { email: string; onDone: () => void }) {
     setLoading(true);
     setError(null);
     const supabase = createClient();
+    if (!supabase) { setError("Supabase is not configured."); setLoading(false); return; }
     const { error } = await supabase.auth.verifyOtp({
       email,
       token: code.trim(),

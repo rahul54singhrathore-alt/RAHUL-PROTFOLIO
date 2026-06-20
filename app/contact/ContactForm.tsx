@@ -1,11 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { sendContactEmail } from "./actions";
 
 const field =
   "w-full rounded-lg border border-border bg-background px-3.5 py-2.5 text-sm outline-none transition-colors placeholder:text-muted/70 focus:border-[color-mix(in_oklab,var(--g1)_55%,var(--border))] focus:ring-2 focus:ring-[var(--ring)]";
-
-const ENDPOINT = process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT ?? "";
 
 export function ContactForm() {
   const [status, setStatus] = useState<"idle" | "sending" | "ok" | "error">("idle");
@@ -13,28 +12,17 @@ export function ContactForm() {
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!ENDPOINT) {
-      setStatus("error");
-      setError("Contact form isn't configured yet.");
-      return;
-    }
     const form = e.currentTarget;
     const data = new FormData(form);
     setStatus("sending");
     setError(null);
-    try {
-      const res = await fetch(ENDPOINT, { method: "POST", body: data, headers: { Accept: "application/json" } });
-      if (res.ok) {
-        setStatus("ok");
-        form.reset();
-      } else {
-        const json = await res.json().catch(() => null);
-        setStatus("error");
-        setError(json?.errors?.[0]?.message ?? "Something went wrong — try again.");
-      }
-    } catch {
+    const result = await sendContactEmail(data);
+    if (result.ok) {
+      setStatus("ok");
+      form.reset();
+    } else {
       setStatus("error");
-      setError("Network error — try again.");
+      setError(result.error ?? "Something went wrong — try again.");
     }
   }
 
@@ -71,8 +59,6 @@ export function ContactForm() {
         <span className="label">Message</span>
         <textarea name="message" placeholder="Tell me about your project, role, or idea…" rows={5} required className={`${field} resize-y`} />
       </label>
-      {/* Formspree honeypot */}
-      <input type="text" name="_gotcha" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden />
       {error && <p className="text-sm text-red-500">{error}</p>}
       <button
         type="submit"

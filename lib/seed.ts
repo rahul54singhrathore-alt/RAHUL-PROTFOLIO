@@ -11,7 +11,7 @@ export const seedProfile: Profile = {
   tagline: "Aspiring Software Engineer | Building in public",
   bio: "20 · Aspiring Software Engineer · Building in public. Shipping real-world projects and always learning. 3rd year student at Manav Rachna University.",
   about: "I'm a 20-year-old developer and 3rd year student at Manav Rachna University. I love shipping real-world projects and building in public. Always learning, always growing.",
-  avatar_url: "/avatar.jpg",
+  avatar_url: "/sourabh.jpg",
   github_username: "rahul54singhrathore-alt",
   x_handle: "RahuXdev",
   linkedin: "https://www.linkedin.com/in/rahul-singh-1a29013a2",

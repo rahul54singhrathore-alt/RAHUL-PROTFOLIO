@@ -6,11 +6,11 @@ import type { Contributions, ContributionDay } from "@/lib/types";
 const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 
 const levelClass = [
-  "bg-border",
-  "bg-green-200 dark:bg-green-900",
-  "bg-green-300 dark:bg-green-700",
-  "bg-green-400 dark:bg-green-600",
-  "bg-green-500 dark:bg-green-500",
+  "bg-zinc-900",
+  "bg-green-900",
+  "bg-green-700",
+  "bg-green-500",
+  "bg-green-400",
 ];
 
 type Tip = { x: number; y: number; day: ContributionDay } | null;
@@ -28,7 +28,7 @@ export function ContributionGraph({ data, username }: { data: Contributions; use
       <div className="overflow-x-auto">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={`https://ghchart.rshah.org/22d3ee/${username}`}
+          src={`https://ghchart.rshah.org/22c55e/${username}`}
           alt={`${username} GitHub contributions`}
           className="min-w-full rounded"
           style={{ filter: "invert(0) opacity(0.9)" }}
